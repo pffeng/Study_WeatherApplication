@@ -1,0 +1,59 @@
+//buildscript代码块脚本优先执行，gradle脚本自身需要用到的资源
+buildscript {
+	//ext用于定义动态属性，这里指定SpringBoot版本为2.0.4
+	ext {
+		springBootVersion = '2.0.4.RELEASE'
+	}
+	//repositories表示使用Maven的中央仓库和Spring自己的仓库（可以指定其他的仓库）
+	repositories {
+		//这里使用Maven的中央仓库
+		mavenCentral()
+	}
+	dependencies {
+		//classpath声明在执行其余build脚本时，ClassLoader可以使用你之后提供的依赖项
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+//指定项目所使用的插件
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+//指定生成文件的编译版本，默认是生成Jar包
+group = 'com.phantom.spring.cloud'
+version = '1.0.0'
+
+//sourceCompatibility指定编译Java文件式所使用的JDK版本
+sourceCompatibility = 1.8
+
+//repositories表示使用Maven的中央仓库和Spring自己的仓库（可以指定其他的仓库）
+repositories {
+	//这里使用Maven的中央仓库
+	mavenCentral()
+}
+
+//ext用于定义动态属性，这里指定SpringCloud版本为Finchley.SR1
+ext {
+	springCloudVersion = 'Finchley.SR1'
+}
+
+//dependencies表示依赖关系
+dependencies {
+	//Eureka Server依赖(Euerka服务端：服务注册中心)
+	compile('org.springframework.cloud:spring-cloud-starter-netflix-eureka-server')
+
+	//Feign依赖(Http(服务消费者)客户端)
+	compile('org.springframework.cloud:spring-cloud-starter-openfeign')
+
+	//该依赖用于测试阶段
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+//SpringCloud依赖
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}

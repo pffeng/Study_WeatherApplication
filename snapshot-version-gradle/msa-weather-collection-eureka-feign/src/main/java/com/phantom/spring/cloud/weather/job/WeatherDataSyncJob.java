@@ -1,0 +1,49 @@
+package com.phantom.spring.cloud.weather.job;
+
+import java.util.List;
+
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+
+import com.phantom.spring.cloud.weather.service.CityClient;
+import com.phantom.spring.cloud.weather.service.WeatherDataCollectionServer;
+import com.phantom.spring.cloud.weather.vo.City;
+
+/**
+ * Weather Data SyncJob.
+ * Quartz将每个任务称为一个Job
+ * @author Administrator
+ *
+ */
+public class WeatherDataSyncJob extends QuartzJobBean {
+	private static final Logger logger = LoggerFactory.getLogger(WeatherDataSyncJob.class);
+	@Autowired
+	private WeatherDataCollectionServer weatherDataCollectionServer;//天气数据采集微服务
+	@Autowired
+	private CityClient cityClient;//城市数据API微服务
+	
+	@Override
+	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+		logger.info("Weather Data SyncJob. start!");
+		//获取城市ID列表
+		List<City> cityList = null;
+		try {
+			//由城市数据API微服务提供数据
+			cityList = cityClient.listCity();
+		} catch (Exception e) {
+			logger.error("Exception! " + e);
+		}
+		//遍历城市ID获取天气
+		for(City city : cityList) {
+			String cityId = city.getCityId();
+			logger.info("Weather Data Sync Job, cityId: " + cityId);
+			weatherDataCollectionServer.syncDataByCityId(cityId);
+		}
+		logger.info("Weather Data SyncJob. end!");
+	}
+
+}

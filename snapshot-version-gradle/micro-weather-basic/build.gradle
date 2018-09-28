@@ -1,0 +1,55 @@
+//buildscript代码块脚本优先执行，gradle脚本自身需要用到的资源
+buildscript {
+        //ext用于定义动态属性
+	ext {
+		springBootVersion = '2.1.0.BUILD-SNAPSHOT'
+	}
+	//repositories表示使用Maven的中央仓库和Spring自己的仓库（可以指定其他的仓库）
+	repositories {
+		//mavenCentral() 中央仓库托管在国外，速度比较慢这里表示不需要
+		maven { url "https://repo.spring.io/snapshot" } //由于2.1.0版本不是稳定版本，所以在国内集成库里面不一定找得到，故添加Spring自带仓库
+		maven { url "https://repo.spring.io/milestone" }
+	        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }//阿里云镜像仓库
+	}
+	//dependencies显示依赖关系，表示使用2.1.0版本的springboot框架
+	dependencies {
+	        //classpath声明在执行其余build脚本时，ClassLoader可以使用你之后提供的依赖项
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")//通过groupId、name、version查找所依赖的jar包
+	}
+}
+
+//文件中声明项目自身需要的资源
+//指定所使用的插件
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+//指定生成文件的编译版本，默认是生成Jar包
+group = 'com.phantom.spring.cloud'
+version = '1.0.0'
+
+//sourceCompatibility指定编译Java文件式所使用的JDK版本
+sourceCompatibility = 1.8
+
+//repositories表示使用Maven的中央仓库和Spring自己的仓库（可以指定其他的仓库）
+repositories {
+	//mavenCentral() 中央仓库托管在国外，速度比较慢这里表示不需要
+	maven { url "https://repo.spring.io/snapshot" }//由于2.1.0版本不是稳定版本，所以在国内集成库里面不一定找得到，故添加Spring自带仓库
+	maven { url "https://repo.spring.io/milestone" }
+	maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }//阿里云镜像仓库
+
+}
+
+//dependencies表示依赖关系
+dependencies {
+
+        //该依赖用于编译阶段
+	compile('org.springframework.boot:spring-boot-starter-web')
+
+	//Apache HttpClient依赖
+	compile('org.apache.httpcomponents:httpclient:4.5.6')
+
+	//该依赖用于测试阶段
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
